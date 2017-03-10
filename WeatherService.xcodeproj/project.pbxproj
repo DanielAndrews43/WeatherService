@@ -16,6 +16,7 @@
 		1686786A1E6F4ED9006FD341 /* WeatherServiceUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 168678691E6F4ED9006FD341 /* WeatherServiceUITests.swift */; };
 		16E033951E725B6900F6775F /* Alamofire.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 16E033881E725B2700F6775F /* Alamofire.framework */; };
 		16E033961E725B6900F6775F /* Alamofire.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 16E033881E725B2700F6775F /* Alamofire.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		16E0339B1E72640000F6775F /* HourByHourTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16E0339A1E72640000F6775F /* HourByHourTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -120,6 +121,7 @@
 		168678691E6F4ED9006FD341 /* WeatherServiceUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherServiceUITests.swift; sourceTree = "<group>"; };
 		1686786B1E6F4ED9006FD341 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		16E0337C1E725B2700F6775F /* Alamofire.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Alamofire.xcodeproj; path = Alamofire/Alamofire.xcodeproj; sourceTree = "<group>"; };
+		16E0339A1E72640000F6775F /* HourByHourTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HourByHourTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -178,6 +180,7 @@
 				168678501E6F4ED9006FD341 /* Assets.xcassets */,
 				168678521E6F4ED9006FD341 /* LaunchScreen.storyboard */,
 				168678551E6F4ED9006FD341 /* Info.plist */,
+				16E0339A1E72640000F6775F /* HourByHourTableViewCell.swift */,
 			);
 			path = WeatherService;
 			sourceTree = "<group>";
@@ -411,6 +414,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				16E0339B1E72640000F6775F /* HourByHourTableViewCell.swift in Sources */,
 				1686784C1E6F4ED9006FD341 /* ViewController.swift in Sources */,
 				1686784A1E6F4ED9006FD341 /* AppDelegate.swift in Sources */,
 			);

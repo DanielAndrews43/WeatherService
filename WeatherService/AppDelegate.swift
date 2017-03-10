@@ -7,6 +7,8 @@
 //
 
 import UIKit
+import CoreLocation
+import Alamofire
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -15,7 +17,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        let locationManager = CLLocationManager()
+        locationManager.requestAlwaysAuthorization()
+        
+        // For use in foreground
+        locationManager.requestWhenInUseAuthorization()
+        
+        locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+        locationManager.startUpdatingLocation()
+        locationManager.requestWhenInUseAuthorization()
+        
+        let location = locationManager.location
+        
+        let coords: String = String(location!.coordinate.latitude) + "," + String(location!.coordinate.longitude)
+        let todoEndpoint: String = "https://api.darksky.net/forecast/586eff41ea9820bdc94c1df3aa5e35e7/" + coords
+        
+        Alamofire.request(todoEndpoint)
+            .responseString { response in
+                // print response as string for debugging, testing, etc.
+                print(response.result.value ?? "")
+                print(response.result.error ?? "")
+        }
+        
+        NotificationCenter.default.addObserver(forName:NSNotification.Name(rawValue: myNotificationKey), object:nil, queue:nil, using:catchNotification)
+        
         return true
     }
 
