@@ -14,6 +14,7 @@ import Alamofire
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    let myNotificationKey = "com.devs.notificationKey"
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
@@ -34,12 +35,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         Alamofire.request(todoEndpoint)
             .responseString { response in
-                // print response as string for debugging, testing, etc.
                 print(response.result.value ?? "")
                 print(response.result.error ?? "")
+                
+                let data: NSData = response.result.value!.data(using: String.Encoding.utf8)! as NSData
+                var json: [String: Any]? = nil
+                
+                do {
+                    json = try (JSONSerialization.jsonObject(with: data as Data) as? [String: Any])!
+                    
+                    
+                }catch let error as NSError {
+                    print(error)
+                }
+                
+                NotificationCenter.default.post(name: NSNotification.Name(rawValue: self.myNotificationKey), object: nil, userInfo: json)
         }
-        
-        NotificationCenter.default.addObserver(forName:NSNotification.Name(rawValue: myNotificationKey), object:nil, queue:nil, using:catchNotification)
         
         return true
     }
