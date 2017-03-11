@@ -7,58 +7,126 @@
 //
 
 import UIKit
-import Alamofire
 import CoreLocation
+import SwiftyJSON
+import Alamofire
 
 class ViewController: UIViewController {
     
-    var temp: String!
+    //top part
+    var temp: Int!
     var rainTime: String!
     var tempDescription: String!
     
+    //hourly part
+    var hourlyTemps: [Int] = []
+    var hourlyIconNames: [String] = []
+    var hourlyTimes: [String] = []
+    var hourlyImage: [UIImage] = []
+    
+    //daily part
+    var dailyIconNames: [String] = []
+    var dailyHighs: [Int] = []
+    var dailyLows:  [Int] = []
+    var dailyImages: [UIImage] = []
+    var dailyDayNames: [String] = []
+    
     var tempView: UIView!
-    var rainView: UIView!
-    var descView: UIView!
+    var dailyWeatherTableView: UITableView!
+    var hourlyWeatherCollectionView: UICollectionView!
     
-    let tempHeight: CGFloat = 0.6
-    let rainHeight: CGFloat = 0.1
-    let descHeight: CGFloat = 0.3
+    var tempLabel: UILabel!
+    var rainLabel: UILabel!
+    var descLabel: UILabel!
     
-    let locationManager = CLLocationManager()
+    let tempHeight: CGFloat = 0.5
+    let rainHeight: CGFloat = 0.25
+    let descHeight: CGFloat = 0.25
+    
+    let myNotificationKey = "com.devs.notificationKey"
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // Ask for Authorisation from the User.
-        self.locationManager.requestAlwaysAuthorization()
-        
-        // For use in foreground
-        self.locationManager.requestWhenInUseAuthorization()
-        
-        locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-        locationManager.startUpdatingLocation()
-        locationManager.requestWhenInUseAuthorization()
-        
-        let location = locationManager.location
-        
-        let coords: String = String(location!.coordinate.latitude) + "," + String(location!.coordinate.longitude)
-        let todoEndpoint: String = "https://api.darksky.net/forecast/586eff41ea9820bdc94c1df3aa5e35e7/" + coords
-        
-        Alamofire.request(todoEndpoint)
-            .responseString { response in
-                // print response as string for debugging, testing, etc.
-                print(response.result.value ?? "")
-                print(response.result.error ?? "")
-        }
-        
-        //Change these all later to pull from the API
-        temp = "53"
-        rainTime = "7:14pm"
-        tempDescription = "It will be a bit chilly today, so make sure to put on a pair of pants and nice sweater"
+        NotificationCenter.default.addObserver(self, selector: #selector(self.catchNotification(_:)), name: NSNotification.Name(rawValue: self.myNotificationKey), object: nil)
         
         view.backgroundColor = UIColor(hex: "7BA9FF")
+    }
+    
+    func catchNotification(_ notification: NSNotification) {
+        
+        let userInfo = JSON(notification.userInfo!)
+        
+        temp = Int(userInfo["currently"]["temperature"].doubleValue)
+        rainTime = "NEVER"
+        tempDescription = userInfo["currently"]["summary"].stringValue
+        
+        for hour in userInfo["hourly"]["data"].arrayValue {
+            hourlyTemps.append(Int(hour["temperature"].doubleValue))
+            
+            let unixTime: Int = hour["time"].intValue
+            let date = NSDate(timeIntervalSince1970: Double(unixTime))
+            let dateFormatter = DateFormatter()
+            dateFormatter.timeStyle = DateFormatter.Style.short //Set time style
+            dateFormatter.dateStyle = DateFormatter.Style.none //Set date style
+            dateFormatter.timeZone = TimeZone(abbreviation: "pst")
+            let localDate = dateFormatter.string(from: date as Date)
+            hourlyTimes.append(localDate)
+            
+            let iconName = hour["icofn"].stringValue
+            hourlyIconNames.append(iconName)
+            
+            if iconName == "partly-cloudy-day" {
+                hourlyImage.append(#imageLiteral(resourceName: "partly-cloudy-day"))
+            } else if iconName == "partly-cloudy-night" {
+                hourlyImage.append(#imageLiteral(resourceName: "partly-cloudy-night"))
+            } else if iconName == "clear-day" {
+                hourlyImage.append(#imageLiteral(resourceName: "clear-day"))
+            } else if iconName == "clear-night" {
+                hourlyImage.append(#imageLiteral(resourceName: "clear-night"))
+            } else if iconName == "rain" {
+                hourlyImage.append(#imageLiteral(resourceName: "rain"))
+            } else if iconName == "cloudy" {
+                hourlyImage.append(#imageLiteral(resourceName: "cloudy"))
+            } else {
+                hourlyImage.append(#imageLiteral(resourceName: "clear-day"))
+            }
+        }
+        
+        for day in userInfo["daily"]["data"].arrayValue {
+            dailyHighs.append(Int(day["temperatureMax"].doubleValue))
+            dailyLows.append(Int(day["temperatureMin"].doubleValue))
+            let iconName = day["icon"].stringValue
+            dailyIconNames.append(iconName)
+            
+            let unixTime: Int = day["time"].intValue
+            let date = NSDate(timeIntervalSince1970: Double(unixTime))
+            let dateFormatter = DateFormatter()
+            dateFormatter.timeStyle = DateFormatter.Style.none //Set time style
+            dateFormatter.dateStyle = DateFormatter.Style.short //Set date style
+            dateFormatter.timeZone = TimeZone(abbreviation: "pst")
+            let localDate = dateFormatter.string(from: date as Date)
+            dailyDayNames.append(localDate)
+            
+            if iconName == "partly-cloudy-day" {
+                dailyImages.append(#imageLiteral(resourceName: "partly-cloudy-day"))
+            } else if iconName == "partly-cloudy-night" {
+                dailyImages.append(#imageLiteral(resourceName: "partly-cloudy-night"))
+            } else if iconName == "clear-day" {
+                dailyImages.append(#imageLiteral(resourceName: "clear-day"))
+            } else if iconName == "clear-night" {
+                dailyImages.append(#imageLiteral(resourceName: "clear-night"))
+            } else if iconName == "rain" {
+                dailyImages.append(#imageLiteral(resourceName: "rain"))
+            } else if iconName == "cloudy" {
+                dailyImages.append(#imageLiteral(resourceName: "cloudy"))
+            } else {
+                dailyImages.append(#imageLiteral(resourceName: "clear-day"))
+            }
+        }
         
         setUpLayout()
+        
     }
 
     override func didReceiveMemoryWarning() {
@@ -68,62 +136,143 @@ class ViewController: UIViewController {
 
     func setUpLayout() {
         
-        makeTemperature()
-        makeRain()
-        makeDescription()
+        setupMainView()
+        setupDailyWeatherTableView()
+        setupHourlyWeatherCollectionView()
     }
     
-    func makeTemperature() {
-        tempView = UIView (frame: CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height * tempHeight))
+    func setupMainView() {
+        tempView = UIView(frame: CGRect(x: 0, y: 0, width: view.frame.width, height: view.frame.height * 0.3))
         
-        let tempLabel: UILabel = UILabel(frame: CGRect(x: 0, y: tempView.frame.height * 0.1, width: tempView.frame.width, height: tempView.frame.height * 0.8))
-        tempLabel.center = CGPoint(x: tempView.frame.width / 2, y: tempView.frame.height / 2)
-        
-        let font: UIFont? = UIFont(name: "Helvetica", size:300)
-        let fontSuper: UIFont? = UIFont(name: "Helvetica", size:50)
-        let attString: NSMutableAttributedString = NSMutableAttributedString(string: self.temp + "ºF", attributes: [NSFontAttributeName:font!])
-        attString.setAttributes([NSFontAttributeName: fontSuper!, NSBaselineOffsetAttributeName: 170], range: NSRange(location: 2, length: 2))
-        tempLabel.attributedText = attString;
-        
+        tempLabel = UILabel(frame: CGRect(x: 0, y: 0, width: tempView.frame.width, height: tempView.frame.height * tempHeight))
+        let font: UIFont? = UIFont(name: "Helvetica", size: 75)
+        tempLabel.font = font
         tempLabel.textColor = UIColor.white
         tempLabel.textAlignment = .center
         tempLabel.numberOfLines = 1
         tempLabel.layer.shadowOffset = CGSize(width: 0, height: 0)
         tempLabel.layer.shadowOpacity = 0.5
         tempLabel.layer.shadowRadius = 20
+        tempLabel.text = String(temp) + "°"
         
-        
-        tempView.addSubview(tempLabel)
-        view.addSubview(tempView)
-    }
-    
-    func makeRain() {
-        rainView = UIView (frame: CGRect(x: 0, y: tempView.frame.maxY, width: view.frame.width, height: view.frame.height * rainHeight))
-        let rainLabel: UILabel = UILabel(frame: CGRect(x: rainView.frame.width * 0.1, y: rainView.frame.height * 0.1, width: rainView.frame.width * 0.8, height: rainView.frame.height * 0.8))
-        rainLabel.center = CGPoint (x: rainView.frame.width / 2, y: rainView.frame.height / 2)
+        rainLabel = UILabel(frame: CGRect(x: 0, y: tempLabel.frame.maxY, width: tempView.frame.width, height: tempView.frame.height * rainHeight))
         rainLabel.text = "It is going to rain today at: \n" + rainTime
         rainLabel.numberOfLines = 2
         rainLabel.textAlignment = .center
         rainLabel.font = UIFont.systemFont(ofSize: 20)
         rainLabel.textColor = UIColor.white
         
-        rainView.addSubview(rainLabel)
-        view.addSubview(rainView)
-    }
-    
-    func makeDescription() {
-        descView = UIView(frame: CGRect(x: 0, y: rainView.frame.maxY, width: view.frame.width, height: view.frame.height * descHeight))
-        let descLabel: UILabel = UILabel(frame: CGRect(x:  descView.frame.width * 0.1, y: descView.frame.height * 0.1, width: descView.frame.width * 0.8, height: descView.frame.height * 0.8))
-        descLabel.center = CGPoint(x: descView.frame.width / 2, y: descView.frame.height / 2)
+        descLabel = UILabel(frame: CGRect(x: 0, y: rainLabel.frame.maxY, width: tempView.frame.width, height: tempView.frame.height * descHeight))
         descLabel.text = self.tempDescription
         descLabel.numberOfLines = 0
-        descLabel.textAlignment = .left
+        descLabel.textAlignment = .center
         descLabel.textColor = UIColor.white
         descLabel.font = UIFont.systemFont(ofSize: 18.0)
         
-        descView.addSubview(descLabel)
-        view.addSubview(descView)
+        tempView.addSubview(tempLabel)
+        tempView.addSubview(rainLabel)
+        tempView.addSubview(descLabel)
+        view.addSubview(tempView)
     }
+    
+    func setupDailyWeatherTableView() {
+        //Initialize TableView Object here
+        dailyWeatherTableView = UITableView(frame: CGRect(x: 0, y: view.frame.height/2, width: view.frame.width, height: view.frame.height/2))
+        
+        //Register the tableViewCell you are using
+        dailyWeatherTableView.register(DailyWeatherTableViewCell.self, forCellReuseIdentifier: "dailyWeatherCell")
+        
+        //Set properties of TableView
+        dailyWeatherTableView.delegate = self
+        dailyWeatherTableView.dataSource = self
+        dailyWeatherTableView.rowHeight = 100
+        //dailyWeatherTableView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 50/2, right: 0)
+        
+        //Add tableView to view
+        view.addSubview(dailyWeatherTableView)
+
+    }
+    
+    func setupHourlyWeatherCollectionView() {
+        let layout = UICollectionViewFlowLayout()
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
+        
+        //flowLayout.itemSize = CGSizeMake(UIScreen.mainScreen().bounds.width/2 - 10, 190)
+        //flowLayout.sectionInset = UIEdgeInsetsMake(0, 5, 0, 5)
+        layout.scrollDirection = UICollectionViewScrollDirection.horizontal
+        //flowLayout.minimumInteritemSpacing = 0.0
+        //mainHomeCollectionView.collectionViewLayout = flowLayout
+        
+        hourlyWeatherCollectionView = UICollectionView(frame: CGRect(x: 0, y: tempView.frame.maxY, width: view.frame.width, height: view.frame.height * (0.2)), collectionViewLayout: layout)
+        
+        hourlyWeatherCollectionView.register(HourlyWeatherTableViewCell.self, forCellWithReuseIdentifier: "hourlyWeatherCell")
+        
+        hourlyWeatherCollectionView.delegate = self
+        hourlyWeatherCollectionView.dataSource = self
+        //hourlyWeatherCollectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        
+        view.addSubview(hourlyWeatherCollectionView)
+    }
+}
+
+extension ViewController: UITableViewDataSource, UITableViewDelegate{
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return 7
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "dailyWeatherCell") as! DailyWeatherTableViewCell
+        
+        for subview in cell.contentView.subviews {
+            subview.removeFromSuperview()
+        }
+        
+        cell.awakeFromNib()
+        cell.dayLabel.text = dailyDayNames[indexPath.row]
+        cell.icon.image = dailyImages[indexPath.row]
+        cell.highTemp.text = "H: " + String(dailyHighs[indexPath.row]) + "°"
+        cell.lowTemp.text = "L: " + String(dailyLows[indexPath.row]) + "°"
+        return cell
+    }
+    
+}
+
+extension ViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout{
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 24
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "hourlyWeatherCell", for: indexPath) as! HourlyWeatherTableViewCell
+        
+        for subview in cell.contentView.subviews {
+            subview.removeFromSuperview()
+        }
+        
+        cell.awakeFromNib()
+        
+        cell.timeLabel.text = String(hourlyTimes[indexPath.row])
+        cell.tempLabel.text = String(hourlyTemps[indexPath.row]) + "°"
+        
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        
+        let hourlyCell = cell as! HourlyWeatherTableViewCell
+        hourlyCell.icon.image = hourlyImage[indexPath.row]
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: view.frame.width * (1/6), height: hourlyWeatherCollectionView.frame.height)
+    }
+    
 }
 
 extension UIColor {

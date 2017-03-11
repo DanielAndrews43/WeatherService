@@ -7,14 +7,14 @@
     "EF908C1CF02C370DD87D014E6125A121D3D13493" : 9223372036854775807,
     "67620B5EFA902936DF04070AF595B76AB0333747" : 9223372036854775807
   },
-  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "83E8463E-2501-41FC-BCEC-6BB637DC0CD3",
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "7E9B01BE-C2A0-43F1-AFB4-15FE388E2EBB",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
     "EF908C1CF02C370DD87D014E6125A121D3D13493" : "WeatherService\/",
     "67620B5EFA902936DF04070AF595B76AB0333747" : "WeatherService\/Alamofire\/"
   },
   "DVTSourceControlWorkspaceBlueprintNameKey" : "WeatherService",
   "DVTSourceControlWorkspaceBlueprintVersion" : 204,
-  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "WeatherService.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "WeatherService.xcworkspace",
   "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
     {
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/Alamofire\/Alamofire.git",

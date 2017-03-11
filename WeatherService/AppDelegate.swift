@@ -28,15 +28,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         locationManager.startUpdatingLocation()
         locationManager.requestWhenInUseAuthorization()
         
-        let location = locationManager.location
         
-        let coords: String = String(location!.coordinate.latitude) + "," + String(location!.coordinate.longitude)
+        var coords: String!
+        if let location = locationManager.location {
+            coords = String(location.coordinate.latitude) + "," + String(location.coordinate.longitude)
+        } else {
+            coords = "37.8267,-122.4233"
+        }
+        
         let todoEndpoint: String = "https://api.darksky.net/forecast/586eff41ea9820bdc94c1df3aa5e35e7/" + coords
         
         Alamofire.request(todoEndpoint)
             .responseString { response in
-                print(response.result.value ?? "")
-                print(response.result.error ?? "")
                 
                 let data: NSData = response.result.value!.data(using: String.Encoding.utf8)! as NSData
                 var json: [String: Any]? = nil
