@@ -15,7 +15,7 @@ class HourlyWeatherTableViewCell: UICollectionViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        self.backgroundColor = UIColor(hex: "7297F")
+        self.backgroundColor = UIColor(hex: "3498DB")
         setupUI()
         // Initialization code
     }

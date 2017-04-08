@@ -50,7 +50,7 @@ class ViewController: UIViewController {
         
         NotificationCenter.default.addObserver(self, selector: #selector(self.catchNotification(_:)), name: NSNotification.Name(rawValue: self.myNotificationKey), object: nil)
         
-        view.backgroundColor = UIColor(hex: "7BA9FF")
+        view.backgroundColor = UIColor(hex: "3498DB")
     }
     
     func catchNotification(_ notification: NSNotification) {
@@ -211,6 +211,9 @@ class ViewController: UIViewController {
         hourlyWeatherCollectionView.delegate = self
         hourlyWeatherCollectionView.dataSource = self
         //hourlyWeatherCollectionView.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+        
+        hourlyWeatherCollectionView.layer.borderWidth = 3
+        hourlyWeatherCollectionView.layer.borderColor = UIColor.white.cgColor
         
         view.addSubview(hourlyWeatherCollectionView)
     }

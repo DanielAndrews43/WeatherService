@@ -16,7 +16,7 @@ class DailyWeatherTableViewCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        self.backgroundColor = UIColor(hex: "7FC9EF")
+        self.backgroundColor = UIColor(hex: "3498DB")
         setupUI()
         // Initialization code
     
@@ -30,7 +30,7 @@ class DailyWeatherTableViewCell: UITableViewCell {
     
     func setupUI() {
         dayLabel = UILabel(frame: CGRect(x: contentView.frame.minX + 20, y: contentView.frame.minY + 10, width: contentView.frame.width * 0.4, height: contentView.frame.height))
-        dayLabel.textColor = UIColor.black
+        dayLabel.textColor = UIColor.white
         dayLabel.font = UIFont(name: "ArialMT", size: 19)
         dayLabel.adjustsFontForContentSizeCategory = true
         
@@ -38,12 +38,12 @@ class DailyWeatherTableViewCell: UITableViewCell {
         icon.contentMode = .scaleAspectFit
         
         highTemp = UILabel(frame: CGRect(x: icon.frame.maxX + 60, y: contentView.frame.minY + 10, width: contentView.frame.width * 0.15, height: contentView.frame.height))
-        highTemp.textColor = UIColor.black
+        highTemp.textColor = UIColor.white
         highTemp.font = UIFont(name: "ArialMT", size: 12)
         highTemp.adjustsFontForContentSizeCategory = true
         
         lowTemp = UILabel(frame: CGRect(x: highTemp.frame.maxX + 10, y: contentView.frame.minY + 10, width: contentView.frame.width * 0.15, height: contentView.frame.height))
-        lowTemp.textColor = UIColor.black
+        lowTemp.textColor = UIColor.white
         lowTemp.font = UIFont(name: "ArialMT", size: 12)
         lowTemp.adjustsFontForContentSizeCategory = true
         
